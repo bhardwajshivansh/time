@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Countdown</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Applying the Inter font to the body */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom style for the large countdown text for better visual weight */
+        .countdown-text {
+            font-weight: 900; /* Black weight for impact */
+            letter-spacing: -0.05em; /* Tighter letter spacing */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+
+    <!-- Main container for the widget -->
+    <div class="w-full max-w-2xl mx-auto bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl p-6 sm:p-10 text-center border border-gray-700">
+
+        <!-- Header Text -->
+        <h1 class="text-lg font-bold uppercase tracking-widest text-teal-300">
+            Time Remaining Today
+        </h1>
+
+        <!-- Countdown Display -->
+        <div id="countdown" class="countdown-text text-7xl sm:text-8xl md:text-9xl my-4">
+            00:00:00
+        </div>
+
+        <!-- Progress Bar Section -->
+        <div class="w-full bg-gray-700 rounded-full h-4 my-6 overflow-hidden border border-gray-600">
+            <div id="progress-bar" class="bg-teal-400 h-full rounded-full transition-all duration-500 ease-linear"></div>
+        </div>
+        <p id="progress-text" class="text-sm text-gray-400">0% of the day has passed</p>
+
+        <!-- Divider -->
+        <hr class="border-gray-700 my-8">
+
+        <!-- Standard Time and Date Display -->
+        <div class="flex flex-col sm:flex-row justify-between items-center text-gray-400">
+            <div id="current-time" class="text-lg">00:00:00 AM</div>
+            <div id="current-date" class="text-lg mt-2 sm:mt-0">January 1, 1970</div>
+        </div>
+
+    </div>
+
+    <script>
+        // DOM element references
+        const countdownEl = document.getElementById('countdown');
+        const progressBarEl = document.getElementById('progress-bar');
+        const progressTextEl = document.getElementById('progress-text');
+        const currentTimeEl = document.getElementById('current-time');
+        const currentDateEl = document.getElementById('current-date');
+
+        /**
+         * Main function to update the clock, runs every second.
+         */
+        function updateClock() {
+            const now = new Date();
+
+            // --- 1. Calculate Remaining Time ---
+            const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+            const totalSecondsRemaining = Math.round((endOfDay.getTime() - now.getTime()) / 1000);
+
+            let hours = Math.floor(totalSecondsRemaining / 3600);
+            let minutes = Math.floor((totalSecondsRemaining % 3600) / 60);
+            let seconds = totalSecondsRemaining % 60;
+
+            // Format with leading zeros
+            const remainingTimeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            countdownEl.textContent = remainingTimeString;
+
+            // --- 2. Calculate Progress Bar ---
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const totalSecondsInDay = (endOfDay.getTime() - startOfDay.getTime()) / 1000;
+            const secondsPassed = (now.getTime() - startOfDay.getTime()) / 1000;
+            const progressPercentage = (secondsPassed / totalSecondsInDay) * 100;
+
+            progressBarEl.style.width = `${100 - progressPercentage}%`; // The bar represents remaining time
+            progressTextEl.textContent = `${progressPercentage.toFixed(2)}% of the day has passed`;
+
+            // --- 3. Update Standard Time and Date ---
+            const standardTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            const standardDate = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            currentTimeEl.textContent = standardTime;
+            currentDateEl.textContent = standardDate;
+        }
+
+        // Run the clock immediately on load, then update every second.
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+
+</body>
+</html>
